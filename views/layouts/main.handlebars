@@ -1,0 +1,157 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+
+    <script>
+        class CustomError extends Error {
+            constructor(message, code) {
+                super(message); this.code = code;
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body,
+        nav,
+        ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: azure;
+            font-family: sans-serif;
+        }
+
+        body>header {
+            background-color: black;
+
+            color: white;
+            font-size: 1.5em;
+            display: flex;
+            padding: 1em;
+        }
+
+        body>main {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        nav {
+            display: flex;
+        }
+
+        nav a {
+            text-decoration: none;
+            font-size: 0.8em;
+            color: white;
+            padding: 1em 2em;
+        }
+
+        ul {
+            display: flex;
+            list-style: none;
+            padding: 0em 2em;
+        }
+
+        input {
+            padding: 0.4em 0.6em;
+            width: 100%;
+        }
+
+        textarea {
+            resize: none;
+            width: 100%;
+            min-height: 5em;
+            font-family: inherit;
+            padding: 1em;
+        }
+
+        button {
+            padding: 0.5em 0.7em;
+            margin: 0.1em;
+            border: none;
+            background: #4766bd;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        article header h1 {
+            font-size: 3em;
+        }
+
+        .errors {
+            color: red;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .small-form {
+            max-width: 200px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">League Tracker</div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/signup" class="hidden-when-logged-in hidden">Signup</a></li>
+                <li><a href="/login" class="hidden-when-logged-in hidden">Login</a></li>
+            </ul>
+            <button id="logout-button" class="hidden-when-logged-out hidden">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+
+        {{{body}}}
+
+    </main>
+
+    <script>
+        document.querySelector("#logout-button").onclick = async () => {
+            const response = await fetch("/api/auth/logout");
+            if (response.redirected) {
+                location.href = response.url;
+                return;
+            }
+        }
+
+        (async () => {
+            const response = await fetch("/api/auth/current-user");
+            const user = await response.json();
+            if (user) {
+                document.querySelectorAll(".hidden-when-logged-out").forEach(element => {
+                    element.classList.remove("hidden");
+                });
+
+                document.querySelectorAll(".only-for-user-" + user.id).forEach(element => {
+                    element.classList.remove("hidden");
+                });
+            } else {
+                document.querySelectorAll(".hidden-when-logged-in").forEach(element => {
+                    element.classList.remove("hidden");
+                });
+            }
+        })()
+
+    </script>
+</body>
+
+</html>

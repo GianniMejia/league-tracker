@@ -5,7 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "db": "mysql -u root -ppassword < ./db/db.sql",
+    "schema": "node ./db/schema.js",
+    "seeds": "npm run schema && node ./db/seeds.js"
   },
   "author": "Gianni M",
   "license": "ISC",
