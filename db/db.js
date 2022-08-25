@@ -4,7 +4,7 @@ import "dotenv/config";
 const db = process.env.JAWSDB_URL
   ? new Sequelize(process.env.JAWSDB_URL)
   : new Sequelize(
-      "league_tracker",
+      "tournament_tracker",
       process.env.MYSQL_USER,
       process.env.MYSQL_PASSWORD,
       {

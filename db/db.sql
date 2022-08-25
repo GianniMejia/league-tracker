@@ -1,1 +1,1 @@
-CREATE DATABASE IF NOT EXISTS league_tracker;
+CREATE DATABASE IF NOT EXISTS tournament_tracker;
