@@ -1,0 +1,50 @@
+<form class="small-form">
+    <h1>Start a Tournament</h1>
+    <div class="errors"></div>
+    <label>
+        Tournament Name
+        <input type="text" name="name" />
+    </label>
+    <label>
+        Description
+        <input type="password" name="description" />
+    </label>
+    <button>Start</button>
+</form>
+<script>
+    document.querySelector("form").onsubmit = async (e) => {
+        // Stop the page from reloading.
+        e.preventDefault();
+        document.querySelector(".errors").innerHTML = "";
+
+        try {
+            const response = await fetch("/api/tournament/new", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: document.querySelector("[name='name']").value,
+                    description: document.querySelector("[name='description']").value
+                })
+            });
+
+            if (response.redirected) {
+                location.href = response.url;
+                return;
+            }
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new CustomError(data.message, response.status);
+            }
+        } catch (error) {
+            if (error.code) {
+                document.querySelector(".errors").innerHTML = error.message;
+            } else {
+                throw error;
+            }
+        }
+    };
+</script>

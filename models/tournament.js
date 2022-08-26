@@ -12,6 +12,7 @@ const Tournament = db.define("tournament", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   description: {
     type: DataTypes.TEXT,
