@@ -6,6 +6,7 @@ import session from "express-session";
 import connect from "connect-session-sequelize";
 import authRouter from "./routes/auth.js";
 import tournamentRouter from "./routes/tournament.js";
+import Tournament from "./models/tournament.js";
 
 const app = express();
 const PORT = process.env.PORT || 3002; //Heroku || localhost port number
@@ -61,6 +62,12 @@ app.get("/login", (req, res) => {
 
 app.get("/tournament/new", (req, res) => {
   res.render("new-tournament");
+});
+
+app.get("/tournament/:id/update", async (req, res) => {
+  res.render("edit-tournament", {
+    tournament: await Tournament.findByPk(req.params.id, { raw: true }),
+  });
 });
 
 // API Routes:

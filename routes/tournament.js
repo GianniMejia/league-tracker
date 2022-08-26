@@ -28,76 +28,60 @@ router.post("/new", async (req, res) => {
       return;
     }
 
-    const user = await Tournament.create({
+    const tournament = await Tournament.create({
       ...req.body,
       dateStarted: new Date(),
       managerId: req.session.userId,
     });
 
-    res.redirect("/");
+    res.redirect(`/api/tournament/${tournament.id}/update`);
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);
   }
 });
 
-router.post("/login", async (req, res) => {
-  try {
-    if (req.session.userId) {
-      res.redirect("/");
-      return;
-    }
-
-    if (!req.body.username) {
-      res.status(400).send({ message: "Please enter a username." });
-      return;
-    }
-
-    if (!req.body.password) {
-      res.status(400).send({ message: "Please enter a password." });
-      return;
-    }
-
-    const user = await User.findOne({
-      where: { username: req.body.username },
-    });
-
-    if (!user) {
-      res.status(400).send({ message: "Invalid username/password." });
-      return;
-    }
-
-    if (!bcrypt.compare(req.body.password, user.passwordHash)) {
-      res.status(400).send({ message: "Invalid username/password." });
-      return;
-    }
-
-    // Save user data in session (log them in)
-    req.session.userId = user.id;
-    req.session.save();
-
-    res.redirect("/");
-  } catch (error) {
-    res.status(500).send({ message: "Something went wrong." });
-    console.log(error);
-  }
-});
-
-router.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/");
-});
-
-router.get("/current-user", async (req, res) => {
+router.put("/:id/update", async (req, res) => {
   try {
     if (!req.session.userId) {
-      res.status(200).send("null");
+      res.status(403).send({ message: "Please login to do that." });
       return;
     }
 
-    res
-      .status(200)
-      .send(await User.findOne({ where: { id: req.session.userId } }));
+    if (
+      req.session.userId !=
+      (await Tournament.findByPk(req.params.id, { raw: true })).managerId
+    ) {
+      res.status(403).send({ message: "Unauthorized." });
+      return;
+    }
+
+    if (!req.body.name) {
+      res.status(400).send({ message: "Please enter a tournament name." });
+      return;
+    }
+
+    if (!req.body.description) {
+      res
+        .status(400)
+        .send({ message: "Please enter a description of the tournament." });
+      return;
+    }
+
+    if (await Tournament.findOne({ where: { name: req.body.name } })) {
+      res.status(400).send({ message: "That tournament name is taken." });
+      return;
+    }
+
+    await Tournament.update(
+      {
+        name: req.body.name,
+        description: req.body.description,
+      },
+      { where: { id: req.params.id } }
+    );
+
+    res.send({ message: "Update successful!" });
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);
