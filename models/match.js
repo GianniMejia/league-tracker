@@ -1,8 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../db/db.js";
-import Participant from "./participant.js";
 
-const Match = db.define("Match", {
+const Match = db.define("match", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -10,13 +9,7 @@ const Match = db.define("Match", {
   },
   dateCompleted: {
     type: DataTypes.DATE,
-    allowNull: false,
   },
-});
-
-Match.hasMany(Participant, {
-  as: "participants",
-  foreignKey: { name: "matchId" },
 });
 
 export default Match;

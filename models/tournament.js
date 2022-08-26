@@ -3,7 +3,7 @@ import db from "../db/db.js";
 import User from "./user.js";
 import Match from "./match.js";
 
-const Tournament = db.define("Tournament", {
+const Tournament = db.define("tournament", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,

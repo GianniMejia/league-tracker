@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../db/db.js";
 
-const Participant = db.define("Participant", {
+const Participant = db.define("participant", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
