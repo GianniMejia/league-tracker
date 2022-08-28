@@ -7,6 +7,10 @@ import connect from "connect-session-sequelize";
 import authRouter from "./routes/auth.js";
 import tournamentRouter from "./routes/tournament.js";
 import Tournament from "./models/tournament.js";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 3002; //Heroku || localhost port number
@@ -35,6 +39,7 @@ app.use(
 store.sync();
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");

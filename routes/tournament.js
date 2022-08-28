@@ -49,6 +49,8 @@ router.put("/:id/update", async (req, res) => {
       return;
     }
 
+    console.log(req.params);
+
     if (
       req.session.userId !=
       (await Tournament.findByPk(req.params.id, { raw: true })).managerId
