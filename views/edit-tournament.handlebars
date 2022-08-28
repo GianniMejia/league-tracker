@@ -16,6 +16,16 @@
 <section id="participant-section">
     <div class="errors"></div>
     <ul></ul>
+    <form>
+        <div class="success"></div>
+        <div class="errors"></div>
+        <label>
+            New Participant
+            <input type="text" name="name" />
+        </label>
+
+        <button>Add</button>
+    </form>
 </section>
 
 <script>
@@ -66,7 +76,7 @@
         section.querySelector("ul").innerHTML = "";
 
         try {
-            const response = await fetch("/api/tournament/{{tournament.id}}/participants", {
+            const response = await fetch("/api/tournament/{{tournament.id}}/participant", {
                 method: "GET",
                 credentials: "include",
                 headers: {
@@ -92,4 +102,40 @@
             }
         }
     }
+
+
+    document.querySelector("#participant-section form").onsubmit = async (e) => {
+        const form = e.currentTarget;
+        // Stop the page from reloading.
+        e.preventDefault();
+        form.querySelector(".errors").innerHTML = "";
+
+        try {
+            const response = await fetch("/api/tournament/{{tournament.id}}/participant", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: form.querySelector("[name='name']").value
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new CustomError(data.message, response.status);
+            }
+
+            readParticipants();
+        } catch (error) {
+            if (error.code) {
+                form.querySelector(".errors").innerHTML = error.message;
+            } else {
+                throw error;
+            }
+        }
+    };
+
+
 </script>

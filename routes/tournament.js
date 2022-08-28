@@ -89,7 +89,7 @@ router.put("/:id/update", async (req, res) => {
   }
 });
 
-router.get("/:id/participants", async (req, res) => {
+router.get("/:id/participant", async (req, res) => {
   try {
     res.status(200).send({
       participants: await Participant.findAll({
@@ -98,6 +98,43 @@ router.get("/:id/participants", async (req, res) => {
         where: { tournamentId: req.params.id },
       }),
     });
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong." });
+    console.log(error);
+  }
+});
+
+router.post("/:id/participant", async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      res.status(403).send({ message: "Please login to do that." });
+      return;
+    }
+
+    if (
+      req.session.userId !=
+      (await Tournament.findByPk(req.params.id, { raw: true })).managerId
+    ) {
+      res.status(403).send({ message: "Unauthorized." });
+      return;
+    }
+
+    if (!req.body.name) {
+      res.status(400).send({ message: "Please enter a name." });
+      return;
+    }
+
+    if (await Participant.findOne({ where: { name: req.body.name } })) {
+      res.status(400).send({ message: "Name is already taken." });
+      return;
+    }
+
+    const participant = await Participant.create({
+      ...req.body,
+      tournamentId: req.params.id,
+    });
+
+    res.status(200).send(participant);
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);
