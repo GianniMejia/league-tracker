@@ -2,6 +2,8 @@ import User from "../models/user.js";
 import Tournament from "../models/tournament.js";
 import Participant from "../models/participant.js";
 import { Router } from "express";
+import Match from "../models/match.js";
+import MatchParticipants from "../models/match-participants.js";
 
 const router = Router();
 
@@ -137,6 +139,32 @@ router.post("/:id/participant", async (req, res) => {
     });
 
     res.status(200).send(participant);
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong." });
+    console.log(error);
+  }
+});
+
+router.delete("/:id/participant/:participantId", async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      res.status(403).send({ message: "Please login to do that." });
+      return;
+    }
+
+    if (
+      req.session.userId !=
+      (await Tournament.findByPk(req.params.id, { raw: true })).managerId
+    ) {
+      res.status(403).send({ message: "Unauthorized." });
+      return;
+    }
+
+    const participant = await Participant.destroy({
+      where: { id: req.params.participantId },
+    });
+
+    res.status(200).send({ message: "Participant deleted successfully!" });
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);

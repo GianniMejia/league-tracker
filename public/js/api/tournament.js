@@ -101,3 +101,28 @@ export async function addParticipant(e, tournamentId, errorElement) {
     }
   }
 }
+
+export async function deleteParticipant(
+  tournamentId,
+  participantId,
+  errorElement
+) {
+  try {
+    const response = await fetch(
+      `/api/tournament/${tournamentId}/participant/${participantId}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (error) {
+    if (error.code) {
+      errorElement.innerHTML = error.message;
+    } else {
+      throw error;
+    }
+  }
+}

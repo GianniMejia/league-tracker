@@ -30,7 +30,12 @@
 </section>
 
 <script type="module">
-    import { updateTournament, getParticipants, addParticipant } from "/js/api/tournament.js";
+    import {
+        updateTournament,
+        getParticipants,
+        addParticipant,
+        deleteParticipant
+    } from "/js/api/tournament.js";
     const tournamentId = {{ tournament.id }};
 
     document.querySelector("#tournament-form").onsubmit =
@@ -44,15 +49,31 @@
     async function displayParticipants() {
         const section = document.querySelector("#participant-section");
         const participants = await getParticipants(tournamentId, section.querySelector(".errors"));
+        section.querySelector("ul").innerHTML = "";
 
         // Display the data
-        section.querySelector("ul").innerHTML = participants
-            .map(
-                (particpant) => `
-                <li>${particpant.name}</li>
-            `
-            )
-            .join("");
+        section.querySelector("ul").append(
+            ...participants
+                .map(
+                    (particpant) => {
+                        const li = document.createElement("li");
+                        li.innerHTML = particpant.name;
+
+                        const button = document.createElement("button");
+                        button.innerHTML = "X";
+                        button.onclick = async () => {
+                            await deleteParticipant(
+                                tournamentId,
+                                particpant.id,
+                                section.querySelector(".errors")
+                            );
+                            displayParticipants();
+                        }
+                        li.append(button);
+                        return li;
+                    }
+                )
+        );
     }
 
     document.querySelector("#participant-section form").onsubmit =
