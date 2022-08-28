@@ -1,4 +1,4 @@
-<form class="small-form">
+<form id="tournament-form">
     <h1>Update a Tournament</h1>
     <div class="success"></div>
     <div class="errors"></div>
@@ -12,11 +12,19 @@
     </label>
     <button>Save</button>
 </form>
+
+<section id="participant-section">
+    <div class="errors"></div>
+    <ul></ul>
+</section>
+
 <script>
-    document.querySelector("form").onsubmit = async (e) => {
+    document.querySelector("#tournament-form").onsubmit = async (e) => {
+        const form = e.currentTarget;
+
         // Stop the page from reloading.
         e.preventDefault();
-        document.querySelector(".errors").innerHTML = "";
+        form.querySelector(".errors").innerHTML = "";
 
         try {
             const response = await fetch("/api/tournament/{{tournament.id}}/update", {
@@ -26,8 +34,8 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    name: document.querySelector("[name='name']").value,
-                    description: document.querySelector("[name='description']").value
+                    name: form.querySelector("[name='name']").value,
+                    description: form.querySelector("[name='description']").value
                 })
             });
 
@@ -41,13 +49,47 @@
                 throw new CustomError(data.message, response.status);
             }
 
-            document.querySelector(".success").innerHTML = data.message;
+            form.querySelector(".success").innerHTML = data.message;
         } catch (error) {
             if (error.code) {
-                document.querySelector(".errors").innerHTML = error.message;
+                form.querySelector(".errors").innerHTML = error.message;
             } else {
                 throw error;
             }
         }
     };
+
+    readParticipants();
+    async function readParticipants() {
+
+        const section = document.querySelector("#participant-section");
+        section.querySelector("ul").innerHTML = "";
+
+        try {
+            const response = await fetch("/api/tournament/{{tournament.id}}/participants", {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new CustomError(data.message, response.status);
+            }
+
+            // Display the data
+            section.querySelector("ul").innerHTML =
+                data.participants.map(particpant => `
+                    <li>${particpant.name}</li>
+                `).join("");
+        } catch (error) {
+            if (error.code) {
+                section.querySelector(".errors").innerHTML = error.message;
+            } else {
+                throw error;
+            }
+        }
+    }
 </script>

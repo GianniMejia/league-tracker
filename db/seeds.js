@@ -44,15 +44,19 @@ import MatchParticipants from "../models/match-participants.js";
   await Participant.bulkCreate([
     {
       name: "Team A",
+      tournamentId: 1,
     },
     {
       name: "Team B",
+      tournamentId: 1,
     },
     {
       name: "Team C",
+      tournamentId: 1,
     },
     {
       name: "Team D",
+      tournamentId: 1,
     },
   ]);
 

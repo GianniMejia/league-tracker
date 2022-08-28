@@ -2,6 +2,7 @@ import { DataTypes } from "sequelize";
 import db from "../db/db.js";
 import User from "./user.js";
 import Match from "./match.js";
+import Participant from "./participant.js";
 
 const Tournament = db.define("tournament", {
   id: {
@@ -34,6 +35,11 @@ const Tournament = db.define("tournament", {
 
 Tournament.hasMany(Match, {
   as: "matches",
+  foreignKey: { name: "tournamentId" },
+});
+
+Tournament.hasMany(Participant, {
+  as: "participants",
   foreignKey: { name: "tournamentId" },
 });
 

@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import Tournament from "../models/tournament.js";
+import Participant from "../models/participant.js";
 import { Router } from "express";
 
 const router = Router();
@@ -82,6 +83,21 @@ router.put("/:id/update", async (req, res) => {
     );
 
     res.send({ message: "Update successful!" });
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong." });
+    console.log(error);
+  }
+});
+
+router.get("/:id/participants", async (req, res) => {
+  try {
+    res.status(200).send({
+      participants: await Participant.findAll({
+        raw: true,
+        order: [["name", "ASC"]],
+        where: { tournamentId: req.params.id },
+      }),
+    });
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);
