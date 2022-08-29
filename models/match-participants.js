@@ -26,4 +26,8 @@ Match.belongsToMany(Participant, {
   foreignKey: "matchId",
 });
 
+Match.hasMany(MatchParticipants, {
+  as: "participations",
+});
+
 export default MatchParticipants;

@@ -39,7 +39,10 @@
                 .map(
                     (tournament) => {
                         const li = document.createElement("li");
-                        li.innerHTML = tournament.name;
+                        const a = document.createElement("a");
+                        a.href = "/tournament/" + tournament.id;
+                        a.innerHTML = tournament.name;
+                        li.append(a);
                         return li;
                     }
                 )

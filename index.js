@@ -9,6 +9,9 @@ import tournamentRouter from "./routes/tournament.js";
 import Tournament from "./models/tournament.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import Participant from "./models/participant.js";
+import Match from "./models/match.js";
+import MatchParticipants from "./models/match-participants.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -72,6 +75,58 @@ app.get("/tournament/new", (req, res) => {
 app.get("/tournament/:id/update", async (req, res) => {
   res.render("edit-tournament", {
     tournament: await Tournament.findByPk(req.params.id, { raw: true }),
+  });
+});
+
+app.get("/tournament/:id", async (req, res) => {
+  const tournament = (
+    await Tournament.findByPk(req.params.id, {
+      include: [
+        { model: Participant, as: "participants" },
+        {
+          model: Match,
+          as: "matches",
+          include: { model: MatchParticipants, as: "participations" },
+        },
+      ],
+    })
+  ).get({ plain: true });
+
+  tournament.participants.forEach((participant) => {
+    participant.wins = 0;
+    participant.losses = 0;
+  });
+
+  tournament.matches.reduce((participants, match) => {
+    match.participations.forEach((participation) => {
+      const id = participation.participantId;
+      participants[id] =
+        participants[id] || tournament.participants.find((x) => x.id == id);
+
+      participants[id].wins += participation.isWinner;
+      participants[id].losses += !participation.isWinner;
+    });
+
+    return participants;
+  }, {});
+
+  tournament.participants.sort((a, b) => {
+    const totalA = a.wins + a.losses;
+    const totalB = b.wins + b.losses;
+
+    if (totalA == 0) {
+      return 1;
+    }
+
+    if (totalB == 0) {
+      return -1;
+    }
+
+    return (b.wins / totalB || -b.losses) - (a.wins / totalA || -a.losses);
+  });
+
+  res.render("tournament", {
+    tournament: tournament,
   });
 });
 
