@@ -93,6 +93,8 @@ router.put("/:id/update", async (req, res) => {
   }
 });
 
+// Participants
+
 router.get("/:id/participant", async (req, res) => {
   try {
     res.status(200).send({
@@ -165,6 +167,23 @@ router.delete("/:id/participant/:participantId", async (req, res) => {
     });
 
     res.status(200).send({ message: "Participant deleted successfully!" });
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong." });
+    console.log(error);
+  }
+});
+
+// Matches
+
+router.get("/:id/match", async (req, res) => {
+  try {
+    res.status(200).send({
+      participants: await Match.findAll({
+        order: [["dateCompleted", "ASC"]],
+        where: { tournamentId: req.params.id },
+        include: [{ model: Participant, as: "participants" }],
+      }),
+    });
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);

@@ -1,3 +1,5 @@
+// Tournament
+
 export async function updateTournament(e, successElement, errorElement) {
   const form = e.currentTarget;
 
@@ -39,6 +41,8 @@ export async function updateTournament(e, successElement, errorElement) {
     }
   }
 }
+
+// Participants
 
 export async function getParticipants(tournamentId, errorElement) {
   try {
@@ -118,6 +122,33 @@ export async function deleteParticipant(
         },
       }
     );
+  } catch (error) {
+    if (error.code) {
+      errorElement.innerHTML = error.message;
+    } else {
+      throw error;
+    }
+  }
+}
+
+// Matches
+
+export async function getMatches(tournamentId, errorElement) {
+  try {
+    const response = await fetch(`/api/tournament/${tournamentId}/match`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new CustomError(data.message, response.status);
+    }
+
+    return data.participants;
   } catch (error) {
     if (error.code) {
       errorElement.innerHTML = error.message;

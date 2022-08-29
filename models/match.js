@@ -9,6 +9,7 @@ const Match = db.define("match", {
   },
   dateCompleted: {
     type: DataTypes.DATE,
+    allowNull: false,
   },
 });
 

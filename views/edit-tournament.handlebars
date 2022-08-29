@@ -15,6 +15,7 @@
 </form>
 
 <section id="participant-section">
+    <h4>Particpants</h4>
     <div class="errors"></div>
     <ul></ul>
     <form>
@@ -27,6 +28,13 @@
 
         <button>Add</button>
     </form>
+</section>
+
+<section id="match-section">
+    <h4>Matches</h4>
+    <div class="errors"></div>
+    <ul> </ul>
+
 </section>
 
 <script type="module">
@@ -45,8 +53,8 @@
             e.currentTarget.querySelector(".errors")
         );
 
-    displayParticipants();
-    async function displayParticipants() {
+    displayMatches();
+    async function displayMatches() {
         const section = document.querySelector("#participant-section");
         const participants = await getParticipants(tournamentId, section.querySelector(".errors"));
         section.querySelector("ul").innerHTML = "";
@@ -67,7 +75,7 @@
                                 particpant.id,
                                 section.querySelector(".errors")
                             );
-                            displayParticipants();
+                            displayMatches();
                         }
                         li.append(button);
                         return li;
@@ -84,8 +92,62 @@
                 e.currentTarget.querySelector(".errors")
             );
 
-            displayParticipants();
+            displayMatches();
         }
 
+</script>
+
+<script type="module">
+    import {
+        updateTournament,
+        getMatches,
+        addParticipant,
+        // deleteMatch
+    } from "/js/api/tournament.js";
+    const tournamentId = {{ tournament.id }};
+
+    displayMatches();
+    async function displayMatches() {
+        const section = document.querySelector("#match-section");
+        const matches = await getMatches(tournamentId, section.querySelector(".errors"));
+        section.querySelector("ul").innerHTML = "";
+        console.log(matches)
+        // Display the data
+        section.querySelector("ul").append(
+            ...matches
+                .map(
+                    (match) => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `${match.participants[0].name} vs. ${match.participants[1].name}`;
+
+                        const button = document.createElement("button");
+                        button.innerHTML = "X";
+                        button.onclick = async () => {
+                            await deleteMatch(
+                                tournamentId,
+                                match.id,
+                                section.querySelector(".errors")
+                            );
+                            displayMatches();
+                        }
+                        li.append(button);
+                        return li;
+                    }
+                )
+        );
+    }
+
+    /*
+        document.querySelector("#participant-section form").onsubmit =
+            async (e) => {
+                await addParticipant(
+                    e,
+                    tournamentId,
+                    e.currentTarget.querySelector(".errors")
+                );
+    
+                displayMatches();
+            }
+            */
 
 </script>

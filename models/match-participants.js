@@ -16,13 +16,13 @@ const MatchParticipants = db.define("match_participants", {
 
 Participant.belongsToMany(Match, {
   through: MatchParticipants,
-  as: "participants",
+  as: "matches",
   foreignKey: "participantId",
 });
 
 Match.belongsToMany(Participant, {
   through: MatchParticipants,
-  as: "matches",
+  as: "participants",
   foreignKey: "matchId",
 });
 
