@@ -4,8 +4,32 @@ import Participant from "../models/participant.js";
 import { Router } from "express";
 import Match from "../models/match.js";
 import MatchParticipants from "../models/match-participants.js";
+import { Sequelize } from "sequelize";
 
 const router = Router();
+
+// Tournaments
+
+router.get("/", async (req, res) => {
+  try {
+    res.status(200).send({
+      tournaments: await Tournament.findAll({
+        // order: [["dateCompleted", "ASC"]],
+        where: {
+          name: Sequelize.where(
+            Sequelize.fn("LOWER", Sequelize.col("name")),
+            "LIKE",
+            `%${req.query.query}%`
+          ),
+        },
+        limit: 10,
+      }),
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong." });
+    console.log(error);
+  }
+});
 
 router.post("/new", async (req, res) => {
   try {
@@ -178,7 +202,7 @@ router.delete("/:id/participant/:participantId", async (req, res) => {
 router.get("/:id/match", async (req, res) => {
   try {
     res.status(200).send({
-      participants: await Match.findAll({
+      matches: await Match.findAll({
         order: [["dateCompleted", "ASC"]],
         where: { tournamentId: req.params.id },
         include: [{ model: Participant, as: "participants" }],

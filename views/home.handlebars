@@ -1,1 +1,50 @@
-hello world
+<section id="tournament-section">
+    <form class="medium-form search-form">
+        <label>
+            <input type="text" name="query" /> <button>Search</button>
+        </label>
+    </form>
+    <div class="errors"></div>
+    <ul></ul>
+</section>
+
+<script type="module">
+    import {
+        getTournaments
+    } from "/js/api/tournament.js";
+
+    const section = document.querySelector("#tournament-section");
+    const form = section.querySelector("form");
+
+    form.onsubmit =
+        async (e) => {
+            e.preventDefault();
+            location.href = "/?query=" + form.querySelector("[name='query']").value;
+        }
+
+    const url = new URL(location.href);
+    const query = url.searchParams.get("query");
+    form.querySelector("[name='query']").value = query;
+    const tournaments = await getTournaments(query, section.querySelector(".errors"));
+    displayTournaments(tournaments);
+
+
+    async function displayTournaments(tournaments) {
+        const section = document.querySelector("#tournament-section");
+        section.querySelector("ul").innerHTML = "";
+
+        // Display the data
+        section.querySelector("ul").append(
+            ...tournaments
+                .map(
+                    (tournament) => {
+                        const li = document.createElement("li");
+                        li.innerHTML = tournament.name;
+                        return li;
+                    }
+                )
+        );
+
+    }
+
+</script>

@@ -1,5 +1,30 @@
 // Tournament
 
+export async function getTournaments(query, errorElement) {
+  try {
+    const response = await fetch(`/api/tournament?query=${query}`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new CustomError(data.message, response.status);
+    }
+
+    return data.tournaments;
+  } catch (error) {
+    if (error.code) {
+      errorElement.innerHTML = error.message;
+    } else {
+      throw error;
+    }
+  }
+}
+
 export async function updateTournament(e, successElement, errorElement) {
   const form = e.currentTarget;
 
@@ -148,7 +173,7 @@ export async function getMatches(tournamentId, errorElement) {
       throw new CustomError(data.message, response.status);
     }
 
-    return data.participants;
+    return data.matches;
   } catch (error) {
     if (error.code) {
       errorElement.innerHTML = error.message;
