@@ -35,10 +35,10 @@
     <div class="errors"></div>
     <ul> </ul>
     <form>
-        <div class="success"></div>
-        <div class="errors"></div>
 
         <h5>New Match</h5>
+        <div class="success"></div>
+        <div class="errors"></div>
         <label>
             Date
             <input type="datetime-local" name="dateCompleted" />
@@ -46,12 +46,12 @@
 
         <label>
             Participant 1
-            <select></select>
+            <select name="participant1Id"></select>
         </label>
 
         <label>
             Participant 2
-            <select></select>
+            <select name="participant2Id"></select>
         </label>
 
         <button>Add</button>
@@ -116,6 +116,7 @@
                         (particpant) => {
                             const option = document.createElement("option");
                             option.innerHTML = particpant.name;
+                            option.value = particpant.id;
                             return option;
                         }
                     )
@@ -140,7 +141,7 @@
     import {
         updateTournament,
         getMatches,
-        addParticipant,
+        addMatch,
         // deleteMatch
     } from "/js/api/tournament.js";
     const tournamentId = {{ tournament.id }};
@@ -150,7 +151,7 @@
         const section = document.querySelector("#match-section");
         const matches = await getMatches(tournamentId, section.querySelector(".errors"));
         section.querySelector("ul").innerHTML = "";
-        console.log(matches)
+
         // Display the data
         section.querySelector("ul").append(
             ...matches
@@ -178,17 +179,16 @@
 
     }
 
-    /*
-        document.querySelector("#participant-section form").onsubmit =
-            async (e) => {
-                await addParticipant(
-                    e,
-                    tournamentId,
-                    e.currentTarget.querySelector(".errors")
-                );
-    
-                displayMatches();
-            }
-            */
+    document.querySelector("#match-section form").onsubmit =
+        async (e) => {
+            await addMatch(
+                e,
+                tournamentId,
+                e.currentTarget.querySelector(".errors")
+            );
+
+            displayMatches();
+        }
+
 
 </script>

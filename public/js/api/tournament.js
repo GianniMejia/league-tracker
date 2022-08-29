@@ -157,3 +157,36 @@ export async function getMatches(tournamentId, errorElement) {
     }
   }
 }
+
+export async function addMatch(e, tournamentId, errorElement) {
+  const form = e.currentTarget;
+  // Stop the page from reloading.
+  e.preventDefault();
+  errorElement.innerHTML = "";
+
+  try {
+    const response = await fetch(`/api/tournament/${tournamentId}/match`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        dateCompleted: form.querySelector("[name='dateCompleted']").value,
+        participant1Id: form.querySelector("[name='participant1Id']").value,
+        participant2Id: form.querySelector("[name='participant2Id']").value,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new CustomError(data.message, response.status);
+    }
+  } catch (error) {
+    if (error.code) {
+      errorElement.innerHTML = error.message;
+    } else {
+      throw error;
+    }
+  }
+}

@@ -190,4 +190,81 @@ router.get("/:id/match", async (req, res) => {
   }
 });
 
+router.post("/:id/match", async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      res.status(403).send({ message: "Please login to do that." });
+      return;
+    }
+
+    if (
+      req.session.userId !=
+      (await Tournament.findByPk(req.params.id, { raw: true })).managerId
+    ) {
+      res.status(403).send({ message: "Unauthorized." });
+      return;
+    }
+
+    if (!req.body.dateCompleted) {
+      res.status(400).send({ message: "Please enter a date." });
+      return;
+    }
+
+    if (req.body.participant1Id == req.body.participant2Id) {
+      res.status(400).send({ message: "A participant may not face itself." });
+      return;
+    }
+
+    if (
+      !(await Participant.findOne({
+        where: {
+          id: req.body.participant1Id,
+          tournamentId: req.params.id,
+        },
+      }))
+    ) {
+      res
+        .status(400)
+        .send({ message: "Participant 1 is not part of this tournament." });
+      return;
+    }
+
+    if (
+      !(await Participant.findOne({
+        where: {
+          id: req.body.participant2Id,
+          tournamentId: req.params.id,
+        },
+      }))
+    ) {
+      res
+        .status(400)
+        .send({ message: "Participant 2 is not part of this tournament." });
+      return;
+    }
+
+    const gmt = new Date(req.body.dateCompleted);
+    const match = await Match.create({
+      dateCompleted: new Date(gmt.getTime() - gmt.getTimezoneOffset() * 60000),
+      tournamentId: req.params.id,
+    });
+
+    await MatchParticipants.bulkCreate([
+      {
+        matchId: match.id,
+        participantId: req.body.participant1Id,
+      },
+      {
+        matchId: match.id,
+        participantId: req.body.participant2Id,
+      },
+    ]);
+
+    res.status(200).send({});
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong." });
+    console.log(error);
+  }
+});
+
 export default router;
