@@ -34,7 +34,28 @@
     <h4>Matches</h4>
     <div class="errors"></div>
     <ul> </ul>
+    <form>
+        <div class="success"></div>
+        <div class="errors"></div>
 
+        <h5>New Match</h5>
+        <label>
+            Date
+            <input type="datetime-local" name="dateCompleted" />
+        </label>
+
+        <label>
+            Participant 1
+            <select></select>
+        </label>
+
+        <label>
+            Participant 2
+            <select></select>
+        </label>
+
+        <button>Add</button>
+    </form>
 </section>
 
 <script type="module">
@@ -53,8 +74,8 @@
             e.currentTarget.querySelector(".errors")
         );
 
-    displayMatches();
-    async function displayMatches() {
+    displayParticipants();
+    async function displayParticipants() {
         const section = document.querySelector("#participant-section");
         const participants = await getParticipants(tournamentId, section.querySelector(".errors"));
         section.querySelector("ul").innerHTML = "";
@@ -75,13 +96,31 @@
                                 particpant.id,
                                 section.querySelector(".errors")
                             );
-                            displayMatches();
+                            displayParticipants();
                         }
                         li.append(button);
                         return li;
                     }
                 )
         );
+
+
+        // Populate the drop-down lists
+        document.querySelectorAll("#match-section form select").forEach((list) => {
+
+            list.innerHTML = "";
+
+            list.append(
+                ...participants
+                    .map(
+                        (particpant) => {
+                            const option = document.createElement("option");
+                            option.innerHTML = particpant.name;
+                            return option;
+                        }
+                    )
+            );
+        });
     }
 
     document.querySelector("#participant-section form").onsubmit =
@@ -91,8 +130,8 @@
                 tournamentId,
                 e.currentTarget.querySelector(".errors")
             );
-
-            displayMatches();
+            document.querySelector("#participant-section form [name='name']").value = "";
+            displayParticipants();
         }
 
 </script>
@@ -135,6 +174,8 @@
                     }
                 )
         );
+
+
     }
 
     /*
