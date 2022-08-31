@@ -92,9 +92,15 @@ app.get("/tournament/:id", async (req, res) => {
     })
   ).get({ plain: true });
 
+  tournament.matches.forEach((match) => {
+    match.winner = null;
+    match.loser = null;
+  });
+
   tournament.participants.forEach((participant) => {
     participant.wins = 0;
     participant.losses = 0;
+    participant.winLossRatio = null;
   });
 
   tournament.matches.reduce((participants, match) => {
@@ -105,24 +111,38 @@ app.get("/tournament/:id", async (req, res) => {
 
       participants[id].wins += participation.isWinner;
       participants[id].losses += !participation.isWinner;
+
+      if (participation.isWinner === true) {
+        match.winner = participants[id];
+      } else if (participation.isWinner === false) {
+        match.loser = participants[id];
+      }
     });
 
     return participants;
   }, {});
 
+  tournament.matches.sort((a, b) => {
+    return a.dateCompleted - b.dateCompleted;
+  });
+
+  tournament.matches.forEach((match) => {
+    match.dateCompleted = match.dateCompleted.toLocaleString("en-US");
+  });
+
+  tournament.participants.forEach((participant) => {
+    const total = participant.wins + participant.losses;
+
+    if (total == 0) {
+      return;
+    }
+
+    participant.winLossRatio =
+      Math.round((participant.wins / total) * 100 * 10) / 10;
+  });
+
   tournament.participants.sort((a, b) => {
-    const totalA = a.wins + a.losses;
-    const totalB = b.wins + b.losses;
-
-    if (totalA == 0) {
-      return 1;
-    }
-
-    if (totalB == 0) {
-      return -1;
-    }
-
-    return (b.wins / totalB || -b.losses) - (a.wins / totalA || -a.losses);
+    return b.wins - b.losses - (a.wins - a.losses);
   });
 
   res.render("tournament", {

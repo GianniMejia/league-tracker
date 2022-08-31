@@ -1,4 +1,51 @@
 <section>
     <h1>{{tournament.name}}</h1>
     <p>{{tournament.description}}</p>
+
+    <h3>Participants</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>W/L</th>
+                <th>Wins</th>
+                <th>Losses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each tournament.participants}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td>
+                    {{#if this.winLossRatio}}{{this.winLossRatio}}%{{/if}}
+                </td>
+                <td>{{this.wins}}</td>
+                <td>{{this.losses}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+
+    </table>
+
+
+    <h3>Matches</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Winner</th>
+                <th>Loser</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each tournament.matches}}
+            <tr>
+                <td>{{this.dateCompleted}}</td>
+                <td> {{this.winner.name}}</td>
+                <td>{{this.loser.name}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+
+    </table>
 </section>
