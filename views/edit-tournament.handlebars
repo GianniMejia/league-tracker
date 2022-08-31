@@ -159,7 +159,7 @@
                     (match) => {
                         const li = document.createElement("li");
                         const date = new Date(new Date(match.dateCompleted).getTime() + new Date(match.dateCompleted).getTimezoneOffset() * 60000);
-                        li.innerHTML = `${match.participants[0].name} vs. ${match.participants[1].name} (${date.toLocaleString("en-US")})`;
+                        li.innerHTML = `${match.participants[0].name} vs. ${match.participants[1].name} <span>(${date.toLocaleString("en-US")})</span>`;
 
                         const button = document.createElement("button");
                         button.innerHTML = "X";

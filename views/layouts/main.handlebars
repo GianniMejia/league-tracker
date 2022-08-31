@@ -38,6 +38,12 @@
             font-size: 1.5em;
             display: flex;
             padding: 1em;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        body>header button {
+            margin: 1rem 2rem;
         }
 
         body>main {
@@ -47,6 +53,8 @@
 
         nav {
             display: flex;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         nav a {
@@ -59,7 +67,10 @@
         header ul {
             display: flex;
             list-style: none;
-            padding: 0em 2em;
+        }
+
+        ul {
+            list-style: none;
         }
 
         input {
@@ -77,7 +88,6 @@
 
         button {
             padding: 0.5em 0.7em;
-            margin: 0.1em;
             border: none;
             background: #4766bd;
             color: white;
@@ -116,6 +126,26 @@
             display: flex;
             align-items: center;
         }
+
+        #results-section {
+            text-align: center;
+        }
+
+        #results-section ul li {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #results-section ul li a {
+            font-size: 1.4em;
+            padding: 1em;
+        }
+
+        #match-section ul span {
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -124,12 +154,10 @@
     <header>
         <div class="logo">Tournament Tracker</div>
         <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/tournament/new" class="hidden-when-logged-out hidden">New Tournament</a></li>
-                <li><a href="/signup" class="hidden-when-logged-in hidden">Signup</a></li>
-                <li><a href="/login" class="hidden-when-logged-in hidden">Login</a></li>
-            </ul>
+            <a href="/">Home</a>
+            <a href="/tournament/new" class="hidden-when-logged-out hidden">New Tournament</a>
+            <a href="/signup" class="hidden-when-logged-in hidden">Signup</a>
+            <a href="/login" class="hidden-when-logged-in hidden">Login</a>
             <button id="logout-button" class="hidden-when-logged-out hidden">Logout</button>
         </nav>
     </header>

@@ -1,4 +1,5 @@
-<section id="tournament-section">
+<section id="results-section">
+    <h1>Tournament Search</h1>
     <form class="medium-form search-form">
         <label>
             <input type="text" name="query" /> <button>Search</button>
@@ -13,7 +14,7 @@
         getTournaments
     } from "/js/api/tournament.js";
 
-    const section = document.querySelector("#tournament-section");
+    const section = document.querySelector("#results-section");
     const form = section.querySelector("form");
 
     form.onsubmit =
@@ -30,7 +31,7 @@
 
 
     async function displayTournaments(tournaments) {
-        const section = document.querySelector("#tournament-section");
+        const section = document.querySelector("#results-section");
         section.querySelector("ul").innerHTML = "";
 
         // Display the data
