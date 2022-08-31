@@ -142,7 +142,7 @@
         updateTournament,
         getMatches,
         addMatch,
-        // deleteMatch
+        updateMatch
     } from "/js/api/tournament.js";
     const tournamentId = {{ tournament.id }};
 
@@ -172,6 +172,28 @@
                             displayMatches();
                         }
                         li.prepend(button);
+
+                        const div = document.createElement("div");
+                        const select = document.createElement("select");
+
+                        select.innerHTML = `<option disabled selected></option>`;
+                        select.innerHTML += match.participants.map(
+                            participant => `
+                                <option value="${participant.id}">${participant.name}</option>
+                            `
+                        );
+
+                        if (match.winner) {
+                            select.value = match.winner.id;
+                        }
+
+                        select.onchange = async (e) => {
+                            updateMatch(e, tournamentId, match.id);
+                        }
+
+                        div.append("Winner: ", select);
+                        li.append(div);
+
                         return li;
                     }
                 )

@@ -5,7 +5,7 @@ import db from "./db/db.js";
 import session from "express-session";
 import connect from "connect-session-sequelize";
 import authRouter from "./routes/auth.js";
-import tournamentRouter from "./routes/tournament.js";
+import tournamentRouter, { getTournament } from "./routes/tournament.js";
 import Tournament from "./models/tournament.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -79,74 +79,8 @@ app.get("/tournament/:id/update", async (req, res) => {
 });
 
 app.get("/tournament/:id", async (req, res) => {
-  const tournament = (
-    await Tournament.findByPk(req.params.id, {
-      include: [
-        { model: Participant, as: "participants" },
-        {
-          model: Match,
-          as: "matches",
-          include: { model: MatchParticipants, as: "participations" },
-        },
-      ],
-    })
-  ).get({ plain: true });
-
-  tournament.matches.forEach((match) => {
-    match.winner = null;
-    match.loser = null;
-  });
-
-  tournament.participants.forEach((participant) => {
-    participant.wins = 0;
-    participant.losses = 0;
-    participant.winLossRatio = null;
-  });
-
-  tournament.matches.reduce((participants, match) => {
-    match.participations.forEach((participation) => {
-      const id = participation.participantId;
-      participants[id] =
-        participants[id] || tournament.participants.find((x) => x.id == id);
-
-      participants[id].wins += participation.isWinner;
-      participants[id].losses += !participation.isWinner;
-
-      if (participation.isWinner === true) {
-        match.winner = participants[id];
-      } else if (participation.isWinner === false) {
-        match.loser = participants[id];
-      }
-    });
-
-    return participants;
-  }, {});
-
-  tournament.matches.sort((a, b) => {
-    return a.dateCompleted - b.dateCompleted;
-  });
-
-  tournament.matches.forEach((match) => {
-    match.dateCompleted = match.dateCompleted.toLocaleString("en-US");
-  });
-
-  tournament.participants.forEach((participant) => {
-    const total = participant.wins + participant.losses;
-
-    if (total == 0) {
-      return;
-    }
-
-    participant.winLossRatio =
-      Math.round((participant.wins / total) * 100 * 10) / 10;
-  });
-
-  tournament.participants.sort((a, b) => {
-    return b.wins - b.losses - (a.wins - a.losses);
-  });
-
   res.render("tournament", {
-    tournament: tournament,
+    tournament: await getTournament(req.params.id),
   });
 });
 

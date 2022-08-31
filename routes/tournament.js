@@ -4,7 +4,7 @@ import Participant from "../models/participant.js";
 import { Router } from "express";
 import Match from "../models/match.js";
 import MatchParticipants from "../models/match-participants.js";
-import { Sequelize } from "sequelize";
+import { Sequelize, where } from "sequelize";
 
 const router = Router();
 
@@ -202,11 +202,7 @@ router.delete("/:id/participant/:participantId", async (req, res) => {
 router.get("/:id/match", async (req, res) => {
   try {
     res.status(200).send({
-      matches: await Match.findAll({
-        order: [["dateCompleted", "ASC"]],
-        where: { tournamentId: req.params.id },
-        include: [{ model: Participant, as: "participants" }],
-      }),
+      matches: (await getTournament(req.params.id)).matches,
     });
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
@@ -290,5 +286,127 @@ router.post("/:id/match", async (req, res) => {
     console.log(error);
   }
 });
+
+router.put("/:id/match/:matchId/winner", async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      res.status(403).send({ message: "Please login to do that." });
+      return;
+    }
+
+    if (
+      req.session.userId !=
+      (await Tournament.findByPk(req.params.id, { raw: true })).managerId
+    ) {
+      res.status(403).send({ message: "Unauthorized." });
+      return;
+    }
+
+    if (!req.body.winnerId) {
+      res.status(400).send({ message: "Please select a winner." });
+      return;
+    }
+
+    await MatchParticipants.update(
+      {
+        isWinner: false,
+      },
+      {
+        where: {
+          matchId: req.params.matchId,
+        },
+      }
+    );
+
+    await MatchParticipants.update(
+      {
+        isWinner: true,
+      },
+      {
+        where: {
+          matchId: req.params.matchId,
+          participantId: req.body.winnerId,
+        },
+      }
+    );
+
+    res.status(200).send({});
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong." });
+    console.log(error);
+  }
+});
+
+export async function getTournament(id) {
+  const tournament = (
+    await Tournament.findByPk(id, {
+      include: [
+        { model: Participant, as: "participants" },
+        {
+          model: Match,
+          as: "matches",
+          include: { model: MatchParticipants, as: "participations" },
+        },
+      ],
+    })
+  ).get({ plain: true });
+
+  tournament.matches.forEach((match) => {
+    match.winner = null;
+    match.loser = null;
+    match.participants = [];
+  });
+
+  tournament.participants.forEach((participant) => {
+    participant.wins = 0;
+    participant.losses = 0;
+    participant.winLossRatio = null;
+  });
+
+  tournament.matches.reduce((participants, match) => {
+    match.participations.forEach((participation) => {
+      const id = participation.participantId;
+      participants[id] =
+        participants[id] || tournament.participants.find((x) => x.id == id);
+      match.participants.push(participants[id]);
+
+      participants[id].wins += participation.isWinner;
+      participants[id].losses += !participation.isWinner;
+
+      if (participation.isWinner === true) {
+        match.winner = participants[id];
+      } else if (participation.isWinner === false) {
+        match.loser = participants[id];
+      }
+    });
+
+    return participants;
+  }, {});
+
+  tournament.matches.sort((a, b) => {
+    return a.dateCompleted - b.dateCompleted;
+  });
+
+  tournament.matches.forEach((match) => {
+    match.dateCompleted = match.dateCompleted.toLocaleString("en-US");
+  });
+
+  tournament.participants.forEach((participant) => {
+    const total = participant.wins + participant.losses;
+
+    if (total == 0) {
+      return;
+    }
+
+    participant.winLossRatio =
+      Math.round((participant.wins / total) * 100 * 10) / 10;
+  });
+
+  tournament.participants.sort((a, b) => {
+    return b.wins - b.losses - (a.wins - a.losses);
+  });
+
+  return tournament;
+}
 
 export default router;

@@ -215,3 +215,26 @@ export async function addMatch(e, tournamentId, errorElement) {
     }
   }
 }
+
+export async function updateMatch(e, tournamentId, matchId) {
+  const select = e.currentTarget;
+
+  const response = await fetch(
+    `/api/tournament/${tournamentId}/match/${matchId}/winner`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        winnerId: select.value,
+      }),
+    }
+  );
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new CustomError(data.message, response.status);
+  }
+}
