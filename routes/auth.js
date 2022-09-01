@@ -98,7 +98,9 @@ router.get("/current-user", async (req, res) => {
 
     res
       .status(200)
-      .send(await User.findOne({ where: { id: req.session.userId } }));
+      .send(
+        (await User.findOne({ where: { id: req.session.userId } })) || "null"
+      );
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);
