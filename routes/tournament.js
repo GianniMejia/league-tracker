@@ -61,7 +61,7 @@ router.post("/new", async (req, res) => {
       managerId: req.session.userId,
     });
 
-    res.redirect(`/api/tournament/${tournament.id}/update`);
+    res.redirect(`/tournament/${tournament.id}/update`);
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);
