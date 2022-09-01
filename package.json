@@ -10,7 +10,7 @@
     "db": "mysql -u root -ppassword < ./db/db.sql",
     "schema": "node ./db/schema.js",
     "seeds": "npm run schema && node ./db/seeds.js",
-    "heroku-postbuild": "npm run db && npm run schema"
+    "heroku-postbuild": "npm run schema"
   },
   "author": "Gianni M",
   "license": "ISC",
