@@ -96,11 +96,15 @@ router.get("/current-user", async (req, res) => {
       return;
     }
 
+    console.log(
+      "user: ",
+      await User.findByPk(req.session.userId, { raw: true })
+    );
+    console.log("ALL: ", await User.findAll({ raw: true }));
+
     res
       .status(200)
-      .send(
-        (await User.findOne({ where: { id: req.session.userId } })) || "null"
-      );
+      .send((await User.findByPk(req.session.userId, { raw: true })) || "null");
   } catch (error) {
     res.status(500).send({ message: "Something went wrong." });
     console.log(error);
