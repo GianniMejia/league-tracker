@@ -154,11 +154,6 @@ router.post("/:id/participant", async (req, res) => {
       return;
     }
 
-    if (await Participant.findOne({ where: { name: req.body.name } })) {
-      res.status(400).send({ message: "Name is already taken." });
-      return;
-    }
-
     const participant = await Participant.create({
       ...req.body,
       tournamentId: req.params.id,
@@ -363,6 +358,16 @@ export async function getTournament(id) {
     participant.winLossRatio = null;
   });
 
+  tournament.matches.forEach((match) => {
+    match.participations.forEach((participation) => {
+      const id = participation.participantId;
+
+      if (participation.isWinner === true) {
+        match.winner = tournament.participants.find((x) => x.id == id);
+      }
+    });
+  }, {});
+
   tournament.matches.reduce((participants, match) => {
     match.participations.forEach((participation) => {
       const id = participation.participantId;
@@ -371,12 +376,16 @@ export async function getTournament(id) {
       match.participants.push(participants[id]);
 
       participants[id].wins += participation.isWinner;
-      participants[id].losses += !participation.isWinner;
 
-      if (participation.isWinner === true) {
-        match.winner = participants[id];
-      } else if (participation.isWinner === false) {
-        match.loser = participants[id];
+      // If there was a match winner...
+      if (match.winner) {
+        participants[id].losses += !participation.isWinner;
+
+        if (participation.isWinner === true) {
+          match.winner = participants[id];
+        } else if (participation.isWinner === false) {
+          match.loser = participants[id];
+        }
       }
     });
 

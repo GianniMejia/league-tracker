@@ -10,7 +10,6 @@ const Participant = db.define("participant", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
 });
 
