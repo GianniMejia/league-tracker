@@ -1,4 +1,14 @@
 <section>
+    {{#if isManager}}
+    <button id="update-button">Update</button>
+    <script>
+        document.querySelector("#update-button").onclick =
+            () => {
+                location.href = "/tournament/{{tournament.id}}/update";
+            };
+    </script>
+
+    {{/if}}
     <h1>{{tournament.name}}</h1>
     <p>{{tournament.description}}</p>
 

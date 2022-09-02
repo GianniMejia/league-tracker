@@ -9,6 +9,7 @@ import tournamentRouter, { getTournament } from "./routes/tournament.js";
 import Tournament from "./models/tournament.js";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import User from "./models/user.js";
 import Participant from "./models/participant.js";
 import Match from "./models/match.js";
 import MatchParticipants from "./models/match-participants.js";
@@ -79,8 +80,14 @@ app.get("/tournament/:id/update", async (req, res) => {
 });
 
 app.get("/tournament/:id", async (req, res) => {
+  const user =
+    req.session.userId &&
+    (await User.findByPk(req.session.userId, { raw: true }));
+
+  const tournament = await getTournament(req.params.id);
   res.render("tournament", {
-    tournament: await getTournament(req.params.id),
+    tournament: tournament,
+    isManager: user && user.id == tournament.managerId,
   });
 });
 
